@@ -47,5 +47,5 @@ table.basic a:hover {
 } */
 
 .btn-default {
-  @apply flex justify-center items-center gap-2 min-w-max font-semibold border-[1px] border-black/30 p-5 rounded-lg hover:bg-slate-100 duration-300 transition-all hover:text-blue-500;
+  @apply flex justify-center items-center gap-2 min-w-max font-semibold border-[1px] border-black/30 p-2 rounded-lg hover:bg-slate-100 duration-300 transition-all hover:text-blue-500;
 }

@@ -9,7 +9,7 @@ export const DrivePage = (): JSX.Element => {
               <button className="btn-default">Criar pasta</button>
               <button className="btn-default">Upload de Arquivo</button>
               <input
-                className="border-[1px] p-5 rounded-lg w-full "
+                className="border-[1px] p-2 rounded-lg w-full "
                 type="text"
               />
               <button className="btn-default">Procurar</button>
