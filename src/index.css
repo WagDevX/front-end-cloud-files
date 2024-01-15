@@ -1,13 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
+}
+
+table.basic {
+  @apply w-full bg-white overflow-x-scroll md:overflow-x-hidden rounded-t-2xl;
+}
+
+table.basic thead tr td,
+table.basic thead tr th {
+  @apply text-left text-gray-600 p-5 border-b-[1px] border-black/30  font-bold;
+}
+
+table.basic tr td {
+  @apply text-left text-sm p-5 border-b-[1px] border-black/30;
+  /*border: solid 1px #eee;*/
+}
+table.basic tbody tr {
+  @apply hover:bg-slate-100;
+  /*border: solid 1px #eee;*/
+}
+
+table.basic a {
+  @apply inline-flex mx-1 items-center gap-1 px-4 py-1 rounded-sm text-sm;
+}
+
+table.basic a:hover {
+  @apply bg-white text-blue-950 transition duration-300 ease-in;
+}
+
+/* table.basic tr:nth-child(even) {
+  @apply bg-sky-100;
+} */
+
+.btn-default {
+  @apply flex justify-center items-center gap-2 min-w-max font-semibold border-[1px] border-black/30 p-5 rounded-lg hover:bg-slate-100 duration-300 transition-all hover:text-blue-500;
 }
