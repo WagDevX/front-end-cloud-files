@@ -7,6 +7,8 @@ import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import ErrorPage from "./routes/error-page";
 import { FolderPage } from "./routes/folder";
 import { DrivePage } from "./routes/drive";
+import { Login } from "./routes/login";
+import { SignUp } from "./routes/sign-up";
 
 const router = createBrowserRouter([
   {
@@ -24,6 +26,14 @@ const router = createBrowserRouter([
       },
     ],
   },
+  {
+    path: "/login",
+    element: <Login />
+  },
+  {
+    path: "sign-up",
+    element: <SignUp />
+  }
 ]);
 
 const root = ReactDOM.createRoot(
