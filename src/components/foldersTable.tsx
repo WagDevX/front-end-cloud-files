@@ -22,20 +22,14 @@ export type FoldersFilesProps = {
   // other properties...
 };
 export type SetCurrentFolderProps = {
-  setCurrentFolder: (folder: FileItem) => void;
+  setCurrentFolder: (folder: FileItem | null) => void;
   currentFolder: FileItem;
-};
-
-const empty: FileItem = {
-  id: 0,
-  name: "",
-  owner: "",
-  parentFolder: 0,
+  deleteFolder: (id: number, root: boolean) => void;
 };
 
 export const FoldersTable: React.FC<
   FoldersFilesProps & SetCurrentFolderProps
-> = ({ array, setCurrentFolder, currentFolder }) => {
+> = ({ array, setCurrentFolder, currentFolder, deleteFolder }) => {
   const [receivedFolders, setReceivedFolders] = useState<FileItem[]>(array);
   const [selected, setSelected] = useState<FileItem>();
   const [path, setPath] = useState<string[]>([]);
@@ -99,11 +93,18 @@ export const FoldersTable: React.FC<
     <>
       <div className="flex gap-2 font-semibold mt-4">
         <Link to={"/"}>
-          <button onClick={() => setCurrentFolder(empty)}>Drive</button>{" "}
+          <button
+            onClick={() => {
+              setCurrentFolder(null);
+              setPath([]);
+            }}
+          >
+            Drive
+          </button>{" "}
         </Link>
-        <FowardIcon />{" "}
         {path.map((name) => (
           <>
+            <FowardIcon />{" "}
             <button
               onClick={() => {
                 setCurrentFolder(findFolderByName(name, receivedFolders)!);
@@ -112,7 +113,6 @@ export const FoldersTable: React.FC<
             >
               {name}
             </button>
-            <FowardIcon />
           </>
         ))}
       </div>
@@ -122,7 +122,7 @@ export const FoldersTable: React.FC<
             <th>Nome</th>
             <th>Tipo</th>
             <th>Proprietário</th>
-            <th>Ação</th>
+            <th>Ações</th>
           </tr>
         </thead>
         <tbody>
@@ -146,6 +146,12 @@ export const FoldersTable: React.FC<
                   <td>{folder.ownerName}</td>
                   <td className="">
                     <button
+                      onClick={() =>
+                        deleteFolder(
+                          folder.id,
+                          folder.parentFolder === null ? true : false
+                        )
+                      }
                       className={`${selected === folder ? "" : "hidden"}`}
                     >
                       <svg
@@ -186,6 +192,12 @@ export const FoldersTable: React.FC<
                   <td>{folder.ownerName}</td>
                   <td className="">
                     <button
+                      onClick={() =>
+                        deleteFolder(
+                          folder.id,
+                          folder.parentFolder === null ? true : false
+                        )
+                      }
                       className={`${selected === folder ? "" : "hidden"}`}
                     >
                       <svg

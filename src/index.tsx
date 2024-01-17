@@ -12,6 +12,9 @@ import { PermissionsPage } from "./routes/permissions";
 import { Users } from "./routes/users";
 import createStore, { createStoreReturn } from "react-auth-kit/createStore";
 import AuthProvider from "react-auth-kit";
+import { PrivateRoute } from "./routes/private-route";
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer } from "react-toastify";
 
 const store: createStoreReturn<object> = createStore({
   authName: "_auth",
@@ -28,19 +31,35 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        element: <DrivePage />,
+        element: (
+          <PrivateRoute>
+            <DrivePage />
+          </PrivateRoute>
+        ),
       },
       {
         path: "/:folderId",
-        element: <DrivePage />,
+        element: (
+          <PrivateRoute>
+            <DrivePage />
+          </PrivateRoute>
+        ),
       },
       {
         path: "admin/permissions",
-        element: <PermissionsPage />,
+        element: (
+          <PrivateRoute>
+            <PermissionsPage />
+          </PrivateRoute>
+        ),
       },
       {
         path: "admin/users",
-        element: <Users />,
+        element: (
+          <PrivateRoute>
+            <Users />
+          </PrivateRoute>
+        ),
       },
     ],
   },
@@ -62,6 +81,7 @@ root.render(
     <AuthProvider store={store}>
       <RouterProvider router={router} />
     </AuthProvider>
+    <ToastContainer />
   </React.StrictMode>
 );
 

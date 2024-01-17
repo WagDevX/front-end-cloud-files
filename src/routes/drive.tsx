@@ -4,6 +4,8 @@ import { FileItem, FoldersTable } from "../components/foldersTable";
 import { apiInstance, foldersRequest } from "../core/api/instance";
 import useAuthUser from "react-auth-kit/hooks/useAuthUser";
 import useAuthHeader from "react-auth-kit/hooks/useAuthHeader";
+import { toast } from "react-toastify";
+import { UploadFileModal } from "../components/uploadFileModal/uploadFileModal";
 
 export const DrivePage = (): JSX.Element => {
   const auth = useAuthHeader();
@@ -11,9 +13,9 @@ export const DrivePage = (): JSX.Element => {
   const [folders, setFolders] = useState<FileItem[]>([]);
   const [folderName, setFolderName] = useState<string>("Pasta sem nome");
   const [loading, setLoading] = useState(false);
-  const [actualFolder, setActualFolder] = useState<FileItem>();
+  const [actualFolder, setActualFolder] = useState<FileItem | null>();
 
-  const setCurrentFolder = (folder: FileItem) => {
+  const setCurrentFolder = (folder: FileItem | null) => {
     setActualFolder(folder);
   };
 
@@ -59,23 +61,63 @@ export const DrivePage = (): JSX.Element => {
     }
     return undefined;
   };
-
-  const createFolder = async () => {
-    const { url, data } = foldersRequest.create(
-      user.id,
-      user.username,
-      folderName,
-      actualFolder!.id
-    );
+  const deleteFolderById = async (id: number, root: boolean) => {
     try {
-      await apiInstance.post(url, data);
+      let res = await apiInstance.delete(foldersRequest.delete(id));
       await folderss();
       (document.getElementById(
         "create_folder_modal"
       ) as HTMLFormElement)!.close();
-      setActualFolder((prev) => findFolderById(prev?.id!, folders));
-      console.log(actualFolder);
+      //setActualFolder((prev) => findFolderById(prev?.id!, folders));
+      if (res.status === 201) {
+        toast.success("Pasta deletada!");
+      }
+      const newChildren = actualFolder?.children?.filter(
+        (folder) => folder.id !== id
+      );
+      if (!root) {
+        let updateChildren = (
+          fileItem: FileItem,
+          newChildren: FileItem[]
+        ): FileItem => {
+          return { ...fileItem, children: newChildren };
+        };
+        setActualFolder(updateChildren(actualFolder!, newChildren!));
+      }
+    } catch (err: any) {
+      if (err.response.status === 505) {
+        toast.error(err.response.data.message);
+      } else {
+        toast.error("Erro ao deletar pasta, tente novamente!");
+      }
+    }
+  };
+
+  const createFolder = async () => {
+    try {
+      const { url, data } = foldersRequest.create(
+        user.id,
+        user.username,
+        folderName,
+        actualFolder ? actualFolder.id : undefined
+      );
+      const response = await apiInstance.post(url, data);
+      await folderss();
+      (document.getElementById(
+        "create_folder_modal"
+      ) as HTMLFormElement)!.close();
+      //setActualFolder((prev) => findFolderById(prev?.id!, folders));
+      const newFolder: FileItem = {
+        id: response.data.data.id,
+        name: response.data.data.name,
+        owner: response.data.data.owner,
+        ownerName: response.data.data.ownerName,
+        parentFolder: response.data.data.parentFolder,
+        children: [],
+      };
+      actualFolder?.children?.push(newFolder);
     } catch (err) {
+      toast.error("Erro ao criar pasta");
       console.log(err);
     }
   };
@@ -132,7 +174,17 @@ export const DrivePage = (): JSX.Element => {
                   </div>
                 </div>
               </dialog>
-              <button className="btn-default">Upload de Arquivo</button>
+              <button
+                onClick={() =>
+                  (document.getElementById(
+                    "create_file_modal"
+                  ) as HTMLFormElement)!.showModal()
+                }
+                className="btn-default"
+              >
+                Upload de Arquivo
+              </button>
+              <UploadFileModal />
               <input
                 className="border-[1px] p-2 rounded-lg w-full "
                 type="text"
@@ -177,6 +229,7 @@ export const DrivePage = (): JSX.Element => {
           </div>
           <FoldersTable
             array={folders}
+            deleteFolder={deleteFolderById}
             setCurrentFolder={setCurrentFolder}
             currentFolder={actualFolder!}
           />

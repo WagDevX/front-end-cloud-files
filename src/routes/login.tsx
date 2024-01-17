@@ -3,7 +3,8 @@ import { Link, Navigate, useNavigate } from "react-router-dom";
 import useSignIn from "react-auth-kit/hooks/useSignIn";
 
 import logo from "../assets/images/logo.png";
-import { apiInstance, loginInstance, loginRequest } from "../core/api/instance";
+import { loginInstance, loginRequest } from "../core/api/instance";
+import { toast } from "react-toastify";
 
 export const Login = (): JSX.Element => {
   const navigate = useNavigate();
@@ -35,18 +36,13 @@ export const Login = (): JSX.Element => {
           })
         ) {
           navigate("/");
-          return (
-            <div className="toast">
-              <div className="alert alert-info">
-                <span>Logado com sucesso.</span>
-              </div>
-            </div>
-          );
+          toast.success("Logado com sucesso!");
         } else {
           console.log("Sign in Failed");
         }
       }
     } catch (error) {
+      toast.error("Erro ao logar, verifique os dados e tente novamente!");
       console.error(error);
     }
   };

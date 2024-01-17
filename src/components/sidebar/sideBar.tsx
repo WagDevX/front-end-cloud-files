@@ -181,7 +181,7 @@ const Sidebar: FC<SidebarProps> = ({ setExpand }) => {
           onClick={() => {
             if ("logout" in item) {
               signOut();
-              navigate("/");
+              navigate("/login");
             }
             if ("child" in item) {
               handleToggle(item.name);
