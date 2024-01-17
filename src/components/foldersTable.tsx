@@ -7,6 +7,7 @@ import { Folder } from "./icons/folder";
 import { Fileicon } from "./icons/fileIcon";
 import { toast } from "react-toastify";
 import { byteConverter } from "../core/utils/byteConverter";
+import { findFolderByName } from "../core/utils/findFolderByName";
 
 export type FileItem = {
   id: number;
@@ -39,24 +40,6 @@ export const FoldersTable: React.FC<
   const [selected, setSelected] = useState<FileItem>();
   const [path, setPath] = useState<string[]>([]);
   const navigate = useNavigate();
-
-  function findFolderByName(
-    name: string,
-    folderList: FileItem[]
-  ): FileItem | null {
-    for (const folder of folderList) {
-      if (folder.name === name) {
-        return folder;
-      }
-
-      const childResult = findFolderByName(name, folder.children!);
-      if (childResult) {
-        return childResult;
-      }
-    }
-
-    return null;
-  }
 
   useEffect(() => {
     setReceivedFolders(array);

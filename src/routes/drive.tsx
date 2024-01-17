@@ -11,12 +11,14 @@ import useAuthHeader from "react-auth-kit/hooks/useAuthHeader";
 import { toast } from "react-toastify";
 import { UploadFileModal } from "../components/uploadFileModal/uploadFileModal";
 import { useParams } from "react-router-dom";
+import { findFolderByName } from "../core/utils/findFolderByName";
 
 export const DrivePage = (): JSX.Element => {
   const params = useParams();
   const auth = useAuthHeader();
   const user: any = useAuthUser();
   const [folders, setFolders] = useState<FileItem[]>([]);
+  const [searchInput, setSearchInput] = useState<string>("");
   const [folderName, setFolderName] = useState<string>("Pasta sem nome");
   const [loading, setLoading] = useState(false);
   const [actualFolder, setActualFolder] = useState<FileItem | null>();
@@ -106,7 +108,14 @@ export const DrivePage = (): JSX.Element => {
   }, []);
 
   const handleSearch = () => {
-    console.log(folders);
+    if (searchInput!.length > 0) {
+      const folder = findFolderByName(searchInput!, folders);
+      if (folder) {
+        setActualFolder(folder);
+      } else {
+        toast.error("Pasta não encontrada");
+      }
+    }
   };
 
   const deleteFileById = async (id: number, root: boolean) => {
@@ -267,6 +276,8 @@ export const DrivePage = (): JSX.Element => {
                 updateUI={handleCreateFile}
               />
               <input
+                value={searchInput}
+                onChange={(ev) => setSearchInput(ev.target.value)}
                 className="border-[1px] p-2 rounded-lg w-full "
                 type="text"
               />
