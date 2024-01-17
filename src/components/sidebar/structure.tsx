@@ -5,7 +5,7 @@ const sidebarStructure = [
     name: "drive",
     parent: true,
     icon: "home",
-    link: "/drive",
+    link: "/",
   },
   {
     id: "login",
@@ -33,15 +33,15 @@ const sidebarStructure = [
       {
         id: "admin-roles",
         title: "Genrenciar perfis",
-        name: "admin.roles",
-        link: "/admin/roles",
+        name: "admin.users",
+        link: "/admin/users",
         icon: "dot",
       },
       {
         id: "admin-permissions",
         title: "Gerenciar permissões",
         name: "admin.permissions",
-        link: "/permissions",
+        link: "/admin/permissions",
         icon: "dot",
       },
     ],
@@ -52,7 +52,7 @@ const sidebarStructure = [
     name: "logout",
     parent: true,
     icon: "logout",
-    link: "/logout",
+    logout: "",
   },
 ];
 

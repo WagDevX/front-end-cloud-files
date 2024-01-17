@@ -3,16 +3,22 @@ import { FC, useRef, useState } from "react";
 import SimpleBar from "simplebar-react";
 import "simplebar-react/dist/simplebar.min.css";
 import { sidebarStructure } from "./structure";
+import { Link, useNavigate } from "react-router-dom";
+import logo from "../../assets/images/logo.png";
+import useSignOut from "react-auth-kit/hooks/useSignOut";
+import useAuthUser from "react-auth-kit/hooks/useAuthUser";
 
 interface SidebarProps {
   setExpand: (value: boolean) => void;
 }
 
 const Sidebar: FC<SidebarProps> = ({ setExpand }) => {
-  const username = "Convidado";
-  const company = "";
-  const profilePic =
-    "https://dewey.tailorbrands.com/production/brand_version_mockup_image/423/8787756423_0fc13dc5-207d-40a7-b8ec-99974a7374f6.png";
+  const navigate = useNavigate();
+  const user: any = useAuthUser();
+  const signOut = useSignOut();
+  const username = user?.username ?? "Convidado";
+  const company = user?.role ?? "";
+  const profilePic = logo;
   const link = "/";
 
   const [openedMenu, setOpenedMenu] = useState<Record<string, any>>({});
@@ -36,7 +42,6 @@ const Sidebar: FC<SidebarProps> = ({ setExpand }) => {
 
   const handleToggle = (name: string) => {
     const rootEl = name.split(".")[0];
-
     if (openedMenu[name]?.open === true) {
       setOpenedMenu((prevState) => ({
         ...prevState,
@@ -168,12 +173,16 @@ const Sidebar: FC<SidebarProps> = ({ setExpand }) => {
 
     return (
       <li key={index}>
-        <a
-          href={item.link ?? ""}
+        <Link
+          to={item.link ?? "#"}
           role="button"
           tabIndex={0}
           id={item.id}
           onClick={() => {
+            if ("logout" in item) {
+              signOut();
+              navigate("/");
+            }
             if ("child" in item) {
               handleToggle(item.name);
             } else if ("link" in item) {
@@ -247,7 +256,7 @@ const Sidebar: FC<SidebarProps> = ({ setExpand }) => {
           ) : (
             false
           )}
-        </a>
+        </Link>
         {"child" in item ? (
           <ul
             ref={(el) => (listRef.current[item.name] = el)}
@@ -313,21 +322,27 @@ const Sidebar: FC<SidebarProps> = ({ setExpand }) => {
       >
         <SimpleBar style={{ height: "100%" }} autoHide>
           <div className="text-slate-500">
-            <div className="my-8 flex flex-col items-center h-44 overflow-x-hidden">
-              <a
-                href={link}
+            <div className="my-8 flex flex-col items-center h-44 overflow-x-hidden ">
+              <Link
+                to={link}
                 className={`text-center flex flex-col items-center justify-center`}
               >
                 <div
                   className={`grid content-center rounded-full duration-300 ${
                     isExpand
-                      ? "h-28 w-28"
+                      ? " h-24 w-48 "
                       : isExpandOnHover
-                      ? "h-28 w-28"
+                      ? "h-24  w-48 "
                       : "h-12 w-12"
                   }`}
                 >
-                  <img src={profilePic} className="block" alt="logo" />
+                  <img
+                    src={profilePic}
+                    className="block"
+                    alt="logo"
+                    width={400}
+                    height={400}
+                  />
                 </div>
                 <div
                   className={`text-base font-semibold text-slate-700 mt-3 truncate duration-300 ${
@@ -343,7 +358,7 @@ const Sidebar: FC<SidebarProps> = ({ setExpand }) => {
                 >
                   {company}
                 </div>
-              </a>
+              </Link>
             </div>
 
             <div className="mt-3 mb-10 p-0">
