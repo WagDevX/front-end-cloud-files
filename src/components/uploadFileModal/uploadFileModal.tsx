@@ -1,13 +1,41 @@
 import { useState } from "react";
+import { apiInstance, filesRequest } from "../../core/api/instance";
+import useAuthUser from "react-auth-kit/hooks/useAuthUser";
+import { toast } from "react-toastify";
 
-export const UploadFileModal = (): JSX.Element => {
+type Props = {
+  parentFolder: number;
+};
+
+export const UploadFileModal = ({ parentFolder }: Props): JSX.Element => {
+  const user = useAuthUser<any>();
   const [file, setFile] = useState<FileList>();
   const submitFile = (ev: React.ChangeEvent<HTMLInputElement>) => {
     ev.preventDefault();
     setFile(ev.target?.files!);
   };
 
-  const createFile = async () => {};
+  const createFile = async () => {
+    try {
+      const { url, data } = filesRequest.createFile(
+        file![0]!.name,
+        "",
+        user!.id,
+        user!.username,
+        file![0]!.type,
+        file![0]!.size,
+        parentFolder
+      );
+      await apiInstance.post(url, data);
+      toast.success("Arquivo enviado com sucesso!");
+      (document.getElementById(
+        "create_folder_modal"
+      ) as HTMLFormElement)!.close();
+    } catch (error) {
+      toast.error("Erro ao enviar arquivo =(");
+      console.log(error);
+    }
+  };
   return (
     <>
       <dialog id="create_file_modal" className="modal">

@@ -1,7 +1,7 @@
 const sidebarStructure = [
   {
     id: "drive",
-    title: "Drive",
+    title: "Meu Drive",
     name: "drive",
     parent: true,
     icon: "home",

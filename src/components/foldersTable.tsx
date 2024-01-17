@@ -2,16 +2,21 @@ import React, { useEffect } from "react";
 import { useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { FowardIcon } from "./icons/foward";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { Folder } from "./icons/folder";
-twMerge("bg-red");
+import useAuthUser from "react-auth-kit/hooks/useAuthUser";
+import { Fileicon } from "./icons/fileIcon";
+import { CloseButton, toast } from "react-toastify";
+import { byteConverter } from "../core/utils/byteConverter";
 
 export type FileItem = {
   id: number;
-  name: string;
+  name?: string;
   owner: string;
   extension?: string;
   ownerName?: string;
+  fileName?: string;
+  downloadUrl?: string;
   parentFolder: number;
   size?: number;
   children?: Array<FileItem>;
@@ -25,11 +30,21 @@ export type SetCurrentFolderProps = {
   setCurrentFolder: (folder: FileItem | null) => void;
   currentFolder: FileItem;
   deleteFolder: (id: number, root: boolean) => void;
+  getFilesFromFolder: (
+    folderID: number | string,
+    owner: number
+  ) => Promise<void>;
 };
 
 export const FoldersTable: React.FC<
   FoldersFilesProps & SetCurrentFolderProps
-> = ({ array, setCurrentFolder, currentFolder, deleteFolder }) => {
+> = ({
+  array,
+  setCurrentFolder,
+  currentFolder,
+  deleteFolder,
+  getFilesFromFolder,
+}) => {
   const [receivedFolders, setReceivedFolders] = useState<FileItem[]>(array);
   const [selected, setSelected] = useState<FileItem>();
   const [path, setPath] = useState<string[]>([]);
@@ -54,10 +69,16 @@ export const FoldersTable: React.FC<
     setReceivedFolders(array);
   }, [array]);
 
-  useEffect(() => {}, [currentFolder]);
+  useEffect(() => {
+    setReceivedFolders(array);
+  }, [array]);
 
-  const handleOpenFolder = (folder: FileItem) => {
-    setPath((prev) => [...prev, folder.name]);
+  const handleOpenFolder = async (folder: FileItem) => {
+    if (folder.extension !== undefined) {
+      toast.success("Simulação: Baixando arquivo");
+      return;
+    }
+    setPath((prev) => [...prev, folder.name!]);
     setCurrentFolder(folder);
     navigate("/" + folder.id);
   };
@@ -106,8 +127,9 @@ export const FoldersTable: React.FC<
           <>
             <FowardIcon />{" "}
             <button
+              disabled={currentFolder.name === name}
               onClick={() => {
-                setCurrentFolder(findFolderByName(name, receivedFolders)!);
+                handleOpenFolder(findFolderByName(name, receivedFolders)!);
                 setPath(popUntil(path, name));
               }}
             >
@@ -122,6 +144,7 @@ export const FoldersTable: React.FC<
             <th>Nome</th>
             <th>Tipo</th>
             <th>Proprietário</th>
+            <th>Tamanho</th>
             <th>Ações</th>
           </tr>
         </thead>
@@ -129,7 +152,7 @@ export const FoldersTable: React.FC<
           {currentFolder
             ? currentFolder.children?.map((folder, index) => (
                 <tr
-                  key={`fol_${index}`}
+                  key={`fol_${folder.id}`}
                   onClick={() => handleSelect(folder)}
                   onDoubleClick={() => handleOpenFolder(folder)}
                   className={twMerge(
@@ -139,11 +162,17 @@ export const FoldersTable: React.FC<
                   <td>
                     <div className="flex gap-2 items-center">
                       {folder.extension === undefined && <Folder />}
-                      {folder.name}
+                      {folder.extension !== undefined && <Fileicon />}
+                      {folder.name ?? folder.fileName}
                     </div>
                   </td>
                   <td>{folder.extension ?? "Pasta"}</td>
                   <td>{folder.ownerName}</td>
+                  <td>
+                    {folder.size
+                      ? byteConverter(folder.size!, 2, "MB")
+                      : "Desconhecido"}
+                  </td>
                   <td className="">
                     <button
                       onClick={() =>
@@ -175,7 +204,7 @@ export const FoldersTable: React.FC<
             : receivedFolders.length > 0 &&
               receivedFolders.map((folder, index) => (
                 <tr
-                  key={`fol_${index}`}
+                  key={`fol_${folder.id}`}
                   onClick={() => handleSelect(folder)}
                   onDoubleClick={() => handleOpenFolder(folder)}
                   className={twMerge(
@@ -185,11 +214,17 @@ export const FoldersTable: React.FC<
                   <td>
                     <div className="flex gap-2 items-center">
                       {folder.extension === undefined && <Folder />}
-                      {folder.name}
+                      {folder.extension !== undefined && <Fileicon />}
+                      {folder.name ?? folder.fileName}
                     </div>
                   </td>
                   <td>{folder.extension ?? "Pasta"}</td>
                   <td>{folder.ownerName}</td>
+                  <td>
+                    {folder.size
+                      ? byteConverter(folder.size!, 2, "MB")
+                      : "Desconhecido"}
+                  </td>
                   <td className="">
                     <button
                       onClick={() =>

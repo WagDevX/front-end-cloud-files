@@ -1,13 +1,19 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { FileItem, FoldersTable } from "../components/foldersTable";
-import { apiInstance, foldersRequest } from "../core/api/instance";
+import {
+  apiInstance,
+  filesRequest,
+  foldersRequest,
+} from "../core/api/instance";
 import useAuthUser from "react-auth-kit/hooks/useAuthUser";
 import useAuthHeader from "react-auth-kit/hooks/useAuthHeader";
 import { toast } from "react-toastify";
 import { UploadFileModal } from "../components/uploadFileModal/uploadFileModal";
+import { useParams } from "react-router-dom";
 
 export const DrivePage = (): JSX.Element => {
+  const params = useParams();
   const auth = useAuthHeader();
   const user: any = useAuthUser();
   const [folders, setFolders] = useState<FileItem[]>([]);
@@ -17,6 +23,53 @@ export const DrivePage = (): JSX.Element => {
 
   const setCurrentFolder = (folder: FileItem | null) => {
     setActualFolder(folder);
+  };
+
+  useEffect(() => {
+    if (params.folderId) {
+      getFilesFromFolderID(params.folderId!, user.id);
+    }
+  }, [params.folderId]);
+
+  const getFilesFromFolderID = async (
+    folderID: number | string,
+    owner: number
+  ) => {
+    try {
+      if (actualFolder?.children?.find((item) => item.size !== undefined)) {
+        return;
+      } else {
+        const res = await apiInstance.get(
+          filesRequest.getFileByFolder(folderID, owner)
+        );
+        const newChildren = res.data.map((item: FileItem) => {
+          return {
+            id: item.id,
+            name: item.fileName,
+            owner: item.owner,
+            extension: item.extension,
+            downloadUrl: item.downloadUrl,
+            ownerName: item.ownerName,
+            parentFolder: item.parentFolder,
+            size: item.size,
+            children: [],
+          };
+        });
+        console.log(actualFolder!.children?.concat(newChildren));
+        let updateChildren = (
+          fileItem: FileItem,
+          newChildren: FileItem[]
+        ): FileItem => {
+          return { ...fileItem, children: newChildren };
+        };
+        setActualFolder(
+          updateChildren(
+            actualFolder!,
+            actualFolder!.children?.concat(newChildren)!
+          )
+        );
+      }
+    } catch (error) {}
   };
 
   let folderss = async () => {
@@ -44,23 +97,7 @@ export const DrivePage = (): JSX.Element => {
   const handleSearch = () => {
     console.log(folders);
   };
-  const findFolderById = (
-    id: number,
-    folders: FileItem[]
-  ): FileItem | undefined => {
-    for (const folder of folders) {
-      if (folder.id === id) {
-        return folder;
-      }
-      if (folder.children) {
-        const foundChild = findFolderById(id, folder.children);
-        if (foundChild) {
-          return foundChild;
-        }
-      }
-    }
-    return undefined;
-  };
+
   const deleteFolderById = async (id: number, root: boolean) => {
     try {
       let res = await apiInstance.delete(foldersRequest.delete(id));
@@ -68,7 +105,6 @@ export const DrivePage = (): JSX.Element => {
       (document.getElementById(
         "create_folder_modal"
       ) as HTMLFormElement)!.close();
-      //setActualFolder((prev) => findFolderById(prev?.id!, folders));
       if (res.status === 201) {
         toast.success("Pasta deletada!");
       }
@@ -184,7 +220,7 @@ export const DrivePage = (): JSX.Element => {
               >
                 Upload de Arquivo
               </button>
-              <UploadFileModal />
+              <UploadFileModal parentFolder={actualFolder?.id!} />
               <input
                 className="border-[1px] p-2 rounded-lg w-full "
                 type="text"
@@ -229,6 +265,7 @@ export const DrivePage = (): JSX.Element => {
           </div>
           <FoldersTable
             array={folders}
+            getFilesFromFolder={getFilesFromFolderID}
             deleteFolder={deleteFolderById}
             setCurrentFolder={setCurrentFolder}
             currentFolder={actualFolder!}

@@ -53,6 +53,34 @@ export const loginRequest = {
   },
 };
 
-export const filesInstance = {
+export const filesRequest = {
   fetchAll: `/files/getall`,
+  deleteFolder: (id: number) => {
+    return `/files/${id}`;
+  },
+  getFileByFolder: (folder: number | string, owner: number) => {
+    return `files/${folder}?owner=${owner}`;
+  },
+  createFile: (
+    fileName: string,
+    downloadUrl: string,
+    owner: number,
+    ownerName: string,
+    extension: string,
+    size: number,
+    parentFolder: number
+  ) => {
+    return {
+      url: "/files",
+      data: {
+        fileName: fileName,
+        downloadUrl: downloadUrl,
+        owner: owner,
+        ownerName: ownerName,
+        extension: extension,
+        size: size,
+        parentFolder: parentFolder,
+      },
+    };
+  },
 };

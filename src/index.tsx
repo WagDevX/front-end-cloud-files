@@ -80,8 +80,8 @@ root.render(
   <React.StrictMode>
     <AuthProvider store={store}>
       <RouterProvider router={router} />
+      <ToastContainer position="bottom-right" limit={3} autoClose={800} />
     </AuthProvider>
-    <ToastContainer />
   </React.StrictMode>
 );
 
