@@ -21,7 +21,7 @@ const sidebarStructure = [
     name: "config",
     parent: true,
     icon: "settings",
-    link: "/settings",
+    link: "/users/settings",
   },
   {
     id: "admin",

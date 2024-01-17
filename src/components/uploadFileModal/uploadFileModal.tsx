@@ -2,12 +2,17 @@ import { useState } from "react";
 import { apiInstance, filesRequest } from "../../core/api/instance";
 import useAuthUser from "react-auth-kit/hooks/useAuthUser";
 import { toast } from "react-toastify";
+import { FileItem } from "../foldersTable";
 
 type Props = {
   parentFolder: number;
+  updateUI: (fileItem: FileItem) => void;
 };
 
-export const UploadFileModal = ({ parentFolder }: Props): JSX.Element => {
+export const UploadFileModal = ({
+  parentFolder,
+  updateUI,
+}: Props): JSX.Element => {
   const user = useAuthUser<any>();
   const [file, setFile] = useState<FileList>();
   const submitFile = (ev: React.ChangeEvent<HTMLInputElement>) => {
@@ -26,10 +31,21 @@ export const UploadFileModal = ({ parentFolder }: Props): JSX.Element => {
         file![0]!.size,
         parentFolder
       );
-      await apiInstance.post(url, data);
+      const res = await apiInstance.post(url, data);
+      const newFile: FileItem = {
+        id: res.data.result.id,
+        owner: res.data.result.owner,
+        fileName: res.data.result.fileName,
+        ownerName: res.data.result.ownerName,
+        extension: res.data.result.extension,
+        size: res.data.result.size,
+        parentFolder: res.data.result.parentFolder,
+        children: [],
+      };
+      updateUI(newFile);
       toast.success("Arquivo enviado com sucesso!");
       (document.getElementById(
-        "create_folder_modal"
+        "create_file_modal"
       ) as HTMLFormElement)!.close();
     } catch (error) {
       toast.error("Erro ao enviar arquivo =(");

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { FileItem, FoldersTable } from "../components/foldersTable";
 import {
@@ -23,6 +23,18 @@ export const DrivePage = (): JSX.Element => {
 
   const setCurrentFolder = (folder: FileItem | null) => {
     setActualFolder(folder);
+  };
+
+  const handleCreateFile = (folder: FileItem): void => {
+    console.log("Creating");
+    setActualFolder((prev: any) => {
+      const newArray = prev.children;
+      newArray?.push(folder);
+      return {
+        ...prev,
+        children: newArray,
+      };
+    });
   };
 
   useEffect(() => {
@@ -55,7 +67,6 @@ export const DrivePage = (): JSX.Element => {
             children: [],
           };
         });
-        console.log(actualFolder!.children?.concat(newChildren));
         let updateChildren = (
           fileItem: FileItem,
           newChildren: FileItem[]
@@ -96,6 +107,37 @@ export const DrivePage = (): JSX.Element => {
 
   const handleSearch = () => {
     console.log(folders);
+  };
+
+  const deleteFileById = async (id: number, root: boolean) => {
+    try {
+      let res = await apiInstance.delete(filesRequest.deleteFolder(id));
+      await folderss();
+      (document.getElementById(
+        "create_folder_modal"
+      ) as HTMLFormElement)!.close();
+      if (res.status === 201) {
+        toast.success("Arquivo deletado!");
+      }
+      const newChildren = actualFolder?.children?.filter(
+        (folder) => folder.id !== id
+      );
+      if (!root) {
+        let updateChildren = (
+          fileItem: FileItem,
+          newChildren: FileItem[]
+        ): FileItem => {
+          return { ...fileItem, children: newChildren };
+        };
+        setActualFolder(updateChildren(actualFolder!, newChildren!));
+      }
+    } catch (err: any) {
+      if (err.response.status === 505) {
+        toast.error(err.response.data.message);
+      } else {
+        toast.error("Erro ao deletar arquivo, tente novamente!");
+      }
+    }
   };
 
   const deleteFolderById = async (id: number, root: boolean) => {
@@ -220,7 +262,10 @@ export const DrivePage = (): JSX.Element => {
               >
                 Upload de Arquivo
               </button>
-              <UploadFileModal parentFolder={actualFolder?.id!} />
+              <UploadFileModal
+                parentFolder={actualFolder?.id!}
+                updateUI={handleCreateFile}
+              />
               <input
                 className="border-[1px] p-2 rounded-lg w-full "
                 type="text"
@@ -265,8 +310,8 @@ export const DrivePage = (): JSX.Element => {
           </div>
           <FoldersTable
             array={folders}
-            getFilesFromFolder={getFilesFromFolderID}
             deleteFolder={deleteFolderById}
+            deleteFile={deleteFileById}
             setCurrentFolder={setCurrentFolder}
             currentFolder={actualFolder!}
           />
