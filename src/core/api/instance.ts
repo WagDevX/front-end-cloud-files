@@ -51,6 +51,12 @@ export const loginRequest = {
       data: { username: username, password: password },
     };
   },
+  signUp: (username: string, password: string) => {
+    return {
+      url: "/auth/register",
+      data: { username: username, password: password },
+    };
+  },
 };
 
 export const filesRequest = {
