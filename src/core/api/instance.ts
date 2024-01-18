@@ -1,11 +1,11 @@
 import axios from "axios";
 
 export const apiInstance = axios.create({
-  baseURL: "http://localhost:8080",
+  baseURL: "http://18.230.150.26:8080",
 });
 
 export const loginInstance = axios.create({
-  baseURL: "http://localhost:8080",
+  baseURL: "http://18.230.150.26:8080",
 });
 
 export const foldersRequest = {
