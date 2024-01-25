@@ -11,7 +11,7 @@ import useAuthHeader from "react-auth-kit/hooks/useAuthHeader";
 import { toast } from "react-toastify";
 import { UploadFileModal } from "../components/uploadFileModal/uploadFileModal";
 import { useParams } from "react-router-dom";
-import { findFolderByName } from "../core/utils/findFolderByName";
+import { findFolderById } from "../core/utils/findFolderById";
 
 export const DrivePage = (): JSX.Element => {
   const params = useParams();
@@ -108,14 +108,14 @@ export const DrivePage = (): JSX.Element => {
   }, []);
 
   const handleSearch = () => {
-    if (searchInput!.length > 0) {
-      const folder = findFolderByName(searchInput!, folders);
-      if (folder) {
-        setActualFolder(folder);
-      } else {
-        toast.error("Pasta não encontrada");
-      }
-    }
+    // if (searchInput!.length > 0) {
+    //   const folder = findFolderById("searchInput!", folders);
+    //   if (folder) {
+    //     setActualFolder(folder);
+    //   } else {
+    //     toast.error("Pasta não encontrada");
+    //   }
+    // }
   };
 
   const deleteFileById = async (id: number, root: boolean) => {

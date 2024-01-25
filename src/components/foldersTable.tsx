@@ -7,7 +7,7 @@ import { Folder } from "./icons/folder";
 import { Fileicon } from "./icons/fileIcon";
 import { toast } from "react-toastify";
 import { byteConverter } from "../core/utils/byteConverter";
-import { findFolderByName } from "../core/utils/findFolderByName";
+import { findFolderById } from "../core/utils/findFolderById";
 
 export type FileItem = {
   id: number;
@@ -38,7 +38,7 @@ export const FoldersTable: React.FC<
 > = ({ array, setCurrentFolder, currentFolder, deleteFolder, deleteFile }) => {
   const [receivedFolders, setReceivedFolders] = useState<FileItem[]>(array);
   const [selected, setSelected] = useState<FileItem>();
-  const [path, setPath] = useState<string[]>([]);
+  const [path, setPath] = useState<FileItem[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -51,7 +51,7 @@ export const FoldersTable: React.FC<
 
   const handleOpenFolder = async (folder: FileItem) => {
     if (folder.extension === undefined) {
-      setPath((prev) => [...prev, folder.name!]);
+      setPath((prev) => [...prev, folder]);
       setCurrentFolder(folder);
       navigate("/" + folder.id);
     } else if (folder.extension !== undefined) {
@@ -59,8 +59,8 @@ export const FoldersTable: React.FC<
     }
   };
 
-  function popUntil(list: string[], until: string): string[] {
-    let oldlist: string[] = list;
+  function popUntil(list: FileItem[], until: FileItem): FileItem[] {
+    let oldlist: FileItem[] = list;
     for (let i = oldlist.length - 1; i >= 0; i--) {
       if (oldlist[i] !== until) {
         oldlist.pop();
@@ -89,28 +89,28 @@ export const FoldersTable: React.FC<
   return (
     <>
       <div className="flex gap-2 font-semibold mt-4">
-        <Link to={"/"}>
-          <button
-            onClick={() => {
-              setCurrentFolder(null);
-              setPath([]);
-            }}
-          >
-            Drive
-          </button>{" "}
-        </Link>
-        {path.map((name, index) => (
+        <Link
+          to="/"
+          reloadDocument
+          onClick={() => {
+            setCurrentFolder(null);
+            setPath([]);
+          }}
+        >
+          Drive
+        </Link>{" "}
+        {path.map((folder, index) => (
           <>
             <FowardIcon />{" "}
             <button
-              key={`name="${name}_${index}`}
-              disabled={currentFolder.name === name}
+              key={`name="${folder.name}_${index}`}
+              disabled={currentFolder.id === folder.id}
               onClick={() => {
-                handleOpenFolder(findFolderByName(name, receivedFolders)!);
-                setPath(popUntil(path, name));
+                handleOpenFolder(findFolderById(folder, receivedFolders)!);
+                setPath(popUntil(path, folder));
               }}
             >
-              {name}
+              {folder.name}
             </button>
           </>
         ))}
