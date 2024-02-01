@@ -1,11 +1,11 @@
 import axios from "axios";
 
 export const apiInstance = axios.create({
-  baseURL: "http://18.230.150.26:8080",
+  baseURL: "https://nodeexpressapi-uhxuf2fs.b4a.run",
 });
 
 export const loginInstance = axios.create({
-  baseURL: "http://18.230.150.26:8080",
+  baseURL: "https://nodeexpressapi-uhxuf2fs.b4a.run",
 });
 
 export const foldersRequest = {
