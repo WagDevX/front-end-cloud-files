@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { FowardIcon } from "./icons/foward";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Folder } from "./icons/folder";
 import { Fileicon } from "./icons/fileIcon";
 import { toast } from "react-toastify";
@@ -89,16 +89,16 @@ export const FoldersTable: React.FC<
   return (
     <>
       <div className="flex gap-2 font-semibold mt-4">
-        <Link
-          to="/"
-          reloadDocument
+        <button
           onClick={() => {
             setCurrentFolder(null);
             setPath([]);
+            navigate("/");
+            console.log(currentFolder);
           }}
         >
           Drive
-        </Link>{" "}
+        </button>{" "}
         {path.map((folder, index) => (
           <>
             <FowardIcon />{" "}
@@ -126,117 +126,115 @@ export const FoldersTable: React.FC<
           </tr>
         </thead>
         <tbody>
-          {currentFolder
-            ? currentFolder.children?.map((folder, index) => (
-                <tr
-                  key={`current_${index + folder.id + folder.parentFolder}`}
-                  onClick={() => handleSelect(folder)}
-                  onDoubleClick={() => handleOpenFolder(folder)}
-                  className={twMerge(
-                    `${selected === folder ? "bg-blue-100" : ""}`
-                  )}
+          {currentFolder?.children?.map((folder, index) => (
+            <tr
+              key={index + folder.id}
+              onClick={() => handleSelect(folder)}
+              onDoubleClick={() => handleOpenFolder(folder)}
+              className={twMerge(`${selected === folder ? "bg-blue-100" : ""}`)}
+            >
+              <td>
+                <div className="flex gap-2 items-center">
+                  {folder.extension === undefined && <Folder />}
+                  {folder.extension !== undefined && <Fileicon />}
+                  {folder.name ?? folder.fileName}
+                </div>
+              </td>
+              <td>{folder.extension ?? "Pasta"}</td>
+              <td>{folder.ownerName}</td>
+              <td>
+                {folder.size
+                  ? byteConverter(folder.size!, 2, "MB")
+                  : "Desconhecido"}
+              </td>
+              <td className="">
+                <button
+                  onClick={() => {
+                    if (folder.extension) {
+                      deleteFile(
+                        folder.id,
+                        folder.parentFolder === null ? true : false
+                      );
+                    } else {
+                      deleteFolder(
+                        folder.id,
+                        folder.parentFolder === null ? true : false
+                      );
+                    }
+                  }}
+                  className={`${selected === folder ? "" : "hidden"}`}
                 >
-                  <td>
-                    <div className="flex gap-2 items-center">
-                      {folder.extension === undefined && <Folder />}
-                      {folder.extension !== undefined && <Fileicon />}
-                      {folder.name ?? folder.fileName}
-                    </div>
-                  </td>
-                  <td>{folder.extension ?? "Pasta"}</td>
-                  <td>{folder.ownerName}</td>
-                  <td>
-                    {folder.size
-                      ? byteConverter(folder.size!, 2, "MB")
-                      : "Desconhecido"}
-                  </td>
-                  <td className="">
-                    <button
-                      onClick={() => {
-                        if (folder.extension) {
-                          deleteFile(
-                            folder.id,
-                            folder.parentFolder === null ? true : false
-                          );
-                        } else {
-                          deleteFolder(
-                            folder.id,
-                            folder.parentFolder === null ? true : false
-                          );
-                        }
-                      }}
-                      className={`${selected === folder ? "" : "hidden"}`}
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth="1.5"
+                    stroke="currentColor"
+                    className="w-4 h-4"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
+                    />
+                  </svg>
+                </button>
+              </td>
+            </tr>
+          ))}
+          {currentFolder === null &&
+            receivedFolders.length > 0 &&
+            receivedFolders.map((folder, index) => (
+              <tr
+                key={`received_${index + folder.id}`}
+                onClick={() => handleSelect(folder)}
+                onDoubleClick={() => handleOpenFolder(folder)}
+                className={twMerge(
+                  `${selected === folder ? "bg-blue-100" : ""}`
+                )}
+              >
+                <td>
+                  <div className="flex gap-2 items-center">
+                    {folder.extension === undefined && <Folder />}
+                    {folder.extension !== undefined && <Fileicon />}
+                    {folder.name ?? folder.fileName}
+                  </div>
+                </td>
+                <td>{folder.extension ?? "Pasta"}</td>
+                <td>{folder.ownerName}</td>
+                <td>
+                  {folder.size
+                    ? byteConverter(folder.size!, 2, "MB")
+                    : "Desconhecido"}
+                </td>
+                <td className="">
+                  <button
+                    onClick={() =>
+                      deleteFolder(
+                        folder.id,
+                        folder.parentFolder === null ? true : false
+                      )
+                    }
+                    className={`${selected === folder ? "" : "hidden"}`}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth="1.5"
+                      stroke="currentColor"
+                      className="w-4 h-4"
                     >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke-width="1.5"
-                        stroke="currentColor"
-                        className="w-4 h-4"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
-                        />
-                      </svg>
-                    </button>
-                  </td>
-                </tr>
-              ))
-            : receivedFolders.length > 0 &&
-              receivedFolders.map((folder, index) => (
-                <tr
-                  key={`received_${index + folder.id}`}
-                  onClick={() => handleSelect(folder)}
-                  onDoubleClick={() => handleOpenFolder(folder)}
-                  className={twMerge(
-                    `${selected === folder ? "bg-blue-100" : ""}`
-                  )}
-                >
-                  <td>
-                    <div className="flex gap-2 items-center">
-                      {folder.extension === undefined && <Folder />}
-                      {folder.extension !== undefined && <Fileicon />}
-                      {folder.name ?? folder.fileName}
-                    </div>
-                  </td>
-                  <td>{folder.extension ?? "Pasta"}</td>
-                  <td>{folder.ownerName}</td>
-                  <td>
-                    {folder.size
-                      ? byteConverter(folder.size!, 2, "MB")
-                      : "Desconhecido"}
-                  </td>
-                  <td className="">
-                    <button
-                      onClick={() =>
-                        deleteFolder(
-                          folder.id,
-                          folder.parentFolder === null ? true : false
-                        )
-                      }
-                      className={`${selected === folder ? "" : "hidden"}`}
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke-width="1.5"
-                        stroke="currentColor"
-                        className="w-4 h-4"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
-                        />
-                      </svg>
-                    </button>
-                  </td>
-                </tr>
-              ))}
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
+                      />
+                    </svg>
+                  </button>
+                </td>
+              </tr>
+            ))}
         </tbody>
       </table>
     </>

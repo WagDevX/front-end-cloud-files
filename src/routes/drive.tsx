@@ -21,7 +21,7 @@ export const DrivePage = (): JSX.Element => {
   const [searchInput, setSearchInput] = useState<string>("");
   const [folderName, setFolderName] = useState<string>("Pasta sem nome");
   const [loading, setLoading] = useState(false);
-  const [actualFolder, setActualFolder] = useState<FileItem | null>();
+  const [actualFolder, setActualFolder] = useState<FileItem | null>(null);
 
   const setCurrentFolder = (folder: FileItem | null) => {
     setActualFolder(folder);
